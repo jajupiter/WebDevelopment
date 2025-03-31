@@ -50,7 +50,7 @@ h1
     
 }
 
-.tasklist
+.contenedor_tasklist
 {
     display: flex;
     background-color: antiquewhite;
@@ -61,7 +61,7 @@ h1
     width: 60vw;
 }
 
-.tasklist li
+.contenedor_tasklist li
 {
     display: flex;
     align-items: center;
@@ -101,11 +101,13 @@ form
     display: flex;
     background-color: antiquewhite;
     padding: 10px;
-    justify-content: end;
+    justify-content: center;
+    border-width: 0;
     border-bottom-left-radius: 10px;
     border-bottom-right-radius: 10px;
     width: 60%;
     margin: auto;
+    gap: 5px;
     text-decoration: none;
 }
 
@@ -116,4 +118,20 @@ form
     font-style: oblique;
 }
 
+.completada
+{
+    color: rgb(99, 98, 98);
+    text-decoration: line-through;
+    display: flex;
+    align-items: center;
+}
 
+.oculto 
+{
+    display: none;
+}
+
+.ocultoc
+{
+    display: none;
+}
