@@ -20,19 +20,6 @@ function agregarTarea() {
 }
 
 function completarTarea() {
-    /*document.addEventListener("click", function (e) {
-        if (e.target.classList == 'cmplt-btn') {
-            var tarea = e.target.closest(".task");
-            var tareai = e.target.closest(".completada");
-            if(tarea){
-                tarea.classList = 'completada';
-            } else if(tareai)
-            {
-                tareai.classList = 'task';
-            }
-            
-        }
-    })*/
     document.addEventListener("click", function (e) {
         if (e.target.classList == 'cmplt-btn') {
             var tarea = e.target.closest(".task");
