@@ -1,56 +1,128 @@
 ---
-import { type Task } from "../state";
+import { type Task } from "../types";
 import bin from "../assets/tacho.png";
 
-const { id, content, completed } = Astro.props as Task;
-/*
-if (Astro.request.method === "POST") {
-    const formData = await Astro.request.formData();
-    const task = formData.get("tareaE");
-    console.log(task);
-    
-}
-*/
+type Props = {
+    content: string;
+    id: string;
+    checked: boolean;
+};
+
+const { id, content, checked }: Props = Astro.props;
 ---
 
-<div class="task">
-    <li>
-        <form method="post">
-            <button type="submit" name="tareaC" value={id}>check</button>
+<task-element class="flex justify-center items-center p-2 border-b border-[#b1e4e4] bg-[#faebd7] mx-auto w-3/5 p-3">
+    <li data-id={id} class="flex items-center gap-3 w-110">
+        <form method="POST" action={`/api/tasks/${id}`} class="flex-shrink-0">
+            <button
+                class="w-12 h-6 border rounded flex items-center justify-center items-center"
+                type="submit"
+                name="action"
+                value="check"
+                data-action-button="check-button"
+                data-checked={checked}
+                >check</button
+            >
         </form>
-        <p class={completed}>{content}</p>
-        <form method="post">
-            <button type="submit" name="tareaD" value={id}>
-                <img src={bin.src} height="15px" class="ej" />
+        <p class="flex-grow">{content}</p>
+        <form method="post" action={`/api/tasks/${id}`} class="flex-shrink-0">
+            <button
+                type="submit"
+                name="action"
+                value="delete"
+                data-action-button="delete-button"
+                class="text-gray-500 hover:text-red-500 transition-colors"
+            >
+                <img src={bin.src} class="h-4"/>
             </button>
         </form>
     </li>
-</div>
+</task-element>
 
-<style>
-    .task {
-        display: flex;
-        align-items: center;
+
+<script>
+    import type { Task } from "../types";
+
+    export class TaskElement extends HTMLElement {
+        private li: HTMLLIElement | null = null;
+        private contentElement: HTMLElement | null = null;
+        private checkButton: HTMLButtonElement | null = null;
+        private deleteButton: HTMLButtonElement | null = null;
+        private taskId: string | undefined;
+
+        connectedCallback() {
+            this.li = this.querySelector("li")!;
+            this.contentElement = this.querySelector<HTMLElement>(
+                "[data-content = 'content']",
+            )!;
+            this.checkButton = this.querySelector<HTMLButtonElement>(
+                "[data-action-button = 'check-button']",
+            )!;
+            this.deleteButton = this.querySelector<HTMLButtonElement>(
+                "[data-action-button = 'delete-button']",
+            )!;
+
+            this.taskId = this.li.dataset.id;
+            this.checkButton.addEventListener("click", this.handleChecks);
+            this.deleteButton.addEventListener("click", this.handleDelete);
+        }
+
+        setId(id: string) {
+            if (!this.li) throw new Error();
+            this.li.dataset["id"] = id;
+            this.taskId = id;
+        }
+
+        setChecked(checked: boolean) {
+            if (!this.checkButton) throw new Error();
+            this.checkButton.textContent = checked
+                ? "Completado :)"
+                : "Completar";
+        }
+
+        setContent(content: string) {
+            if (!this.contentElement) throw new Error();
+            this.contentElement.textContent = content;
+        }
+
+        handleChecks = async (e: MouseEvent) => {
+            e.preventDefault();
+
+            const id = this.taskId;
+
+            const response = await fetch(`/api/tasks/${id}`, {
+                method: "POST",
+                body: JSON.stringify({ action: "check" }),
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+
+            const data: { succes: boolean; task: Task } = await response.json();
+            if (data.succes) {
+                this.setChecked(data.task.checked);
+            }
+        };
+
+        handleDelete = async (e: MouseEvent) => {
+            e.preventDefault();
+
+            const id = this.taskId
+
+            const response = await fetch(`/api/tasks/${id}`, {
+                method: "POST",
+                body: JSON.stringify({ action: "delete" }),
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+
+            const data: { succes: boolean; task: Task } = await response.json();
+            if (data.succes) {
+                this.remove();
+            }
+        };
     }
 
-    .task li {
-        display: flex;
-        align-items: center;
-        margin: auto;
-        width: 50vw;
-        gap: 10px;
-        border-width: 10px;
-        border-bottom: 1px solid rgb(177, 228, 228);
-    }
-    .task li form:last-of-type{
-        margin-left: auto;
-    }
-
-    .true {
-        color: rgb(99, 98, 98);
-        text-decoration: line-through;
-        display: flex;
-        align-items: center;
-    }
-
-</style>
+    customElements.define("task-element", TaskElement);
+</script>
