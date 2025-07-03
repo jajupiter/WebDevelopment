@@ -12,7 +12,7 @@ export class TableroRepository
 
     async getByIdTablero(id: string) : Promise<Tablero | undefined>
     {
-        return database.get<Tablero>("SELECT * FROM tableros WHERE id = ?", [id]);
+        return database.get<Tablero>("SELECT * FROM tableros WHERE id = ?", [id]); 
     }
 
     async createTablero(tableroData: CreateTableroRequest) : Promise<Tablero | undefined>
@@ -26,6 +26,13 @@ export class TableroRepository
         const tablero = await this.getByIdTablero(id);
         if(!tablero) throw new Error("Creacion de nuevo tablero fallida");
         return tablero;
+    }
+
+    async editPermisoTablero(id: string): Promise<Tablero | undefined>
+    {
+        await database.run("UPDATE tableros SET sololectura = 1 WHERE id = ?", [id]);
+        const tablero = this.getByIdTablero(id);
+        return tablero
     }
 
     async deleteTablero(id: string): Promise<boolean>

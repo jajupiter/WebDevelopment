@@ -63,5 +63,7 @@ export interface CreateTareaRequest {
 export interface CreateCollabRequest {
   idUser: string;
   idTablero: string;
-  permiso: string;
+  permiso: boolean;
 }
+
+

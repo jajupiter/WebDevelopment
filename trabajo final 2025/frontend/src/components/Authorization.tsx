@@ -1,19 +1,21 @@
 import { toast } from "sonner";
 import listo from "../assets/task.png"
-import type { User } from "../types";
-import { baseURL, errorAtom, loadingAtom, tiempoCargando, tokenAtom } from "./store/tareasStore";
+import { parseJwt, type User } from "../types";
+import { baseURL, colorsAtom, configContentAtom, errorAtom, loadingAtom, tiempoCargando, tokenAtom } from "./store/tareasStore";
 import { useMutation } from "@tanstack/react-query";
 import { atom, useAtom } from "jotai";
 import { type FormEvent } from "react";
 import { jwtDecode } from "jwt-decode";
-import { useNavigate } from "react-router-dom";
+import { data, useNavigate } from "react-router-dom";
 
 const toggleAccountExistsAtom = atom(false)
 
 export function Authorization() {
     const [, setLoading] = useAtom(loadingAtom);
     const [, setError] = useAtom(errorAtom);
-    const [, setToken] = useAtom(tokenAtom);
+    const [token, setToken] = useAtom(tokenAtom);
+    const [configContent, setConfigContent] = useAtom(configContentAtom)
+    const [, setColor] = useAtom(colorsAtom)
     const [accountExists, setAccountExists] = useAtom(toggleAccountExistsAtom)
     const nav = useNavigate();
 
@@ -67,9 +69,12 @@ export function Authorization() {
             setError(error.message);
             toast.error('Se rompió: ', { description: `${error.message}` })
         },
-        onSettled: () => {
+        onSettled: (data) => {
             setTimeout(() => {
                 setLoading(false);
+                const decode = parseJwt(data!);
+                setConfigContent({ intervaloRefetch: decode.intervaloRefetch, capsLck: decode.capsLock, darkMode: decode.darkMode })
+                configContent.darkMode ? setColor({ crema: '#baafa0', celeste: '#058888', fondo: '#2f2f2f' }) : setColor({ crema: '#faebd7', celeste: '#b1e4e4', fondo: '#ffffff' });
                 nav('/', { replace: true });
 
             }, tiempoCargando)
@@ -84,7 +89,7 @@ export function Authorization() {
         e.preventDefault()
         const target = e.target as HTMLFormElement;
         const formData = new FormData(target);
-        const userReg = { email: formData.get("email")!.toString(), username: formData.get("username")!.toString(), password: formData.get("password")!.toString()}
+        const userReg = { email: formData.get("email")!.toString(), username: formData.get("username")!.toString(), password: formData.get("password")!.toString() }
         console.log(userReg)
         if (!userReg.email || !userReg.password || !userReg.username) throw new Error("Por favor llene todos los campos.");
         registerUser(userReg);

@@ -14,14 +14,14 @@ export class UserService
 
     async getUserById(id: string) : Promise<User | undefined>
     {
-        return await this.userRepository.getUserById(id);
+        return this.userRepository.getUserById(id);
     }
 
     async createUser(createRequest : CreateUserRequest): Promise<User | undefined>{
         const exists = await this.userRepository.getUserByEmail(createRequest.email);
         if(exists) throw new Error('El email ingresado ya esta siendo usado para una cuenta.')
         const hashedPassword = await hash(createRequest.password);
-        return await this.userRepository.createUser({...createRequest, password: hashedPassword});
+        return this.userRepository.createUser({...createRequest, password: hashedPassword});
     }
 
     async deleteUser(id: string) : Promise<boolean>{
@@ -41,7 +41,7 @@ export class UserService
         if(!user) throw new Error('El email ingresado no se ha registrado.');
         const validacion = await verify(user.password, password);
         if(!validacion) throw new Error('La contraseña ingresada es incorrecta.');
-        const token = jwt.sign({id: user.id, email: user.email, username: user.username}, "secret");
+        const token = jwt.sign({id: user.id, email: user.email, username: user.username, intervaloRefetch: user.intervaloRefetch, capsLock : user.capsLock, darkMode: user.darkMode}, "secret");
         return token
     }
 }

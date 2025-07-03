@@ -12,9 +12,9 @@ const userController = new UserController(userService);
 userRouter.get("/", userController.getAllUsers);
 userRouter.post("/login", userController.login);
 userRouter.post("/logout", userController.logout);
+userRouter.post("/register", userController.createUser);
 userRouter.get("/:id", userController.getUserById);
 userRouter.post("/:id", userController.editConfigUser);
-userRouter.post("/register", userController.createUser);
 userRouter.delete("/:id", userController.deleteUser);
 
  export {userRouter as userRoute}

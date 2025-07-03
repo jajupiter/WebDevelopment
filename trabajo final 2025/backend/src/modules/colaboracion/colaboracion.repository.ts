@@ -9,14 +9,20 @@ export class ColaboracionRepository
         return colaboraciones
     }
 
-    async getCollabByIds(ids: {idUser: string; idTablero:string}): Promise<Collab | undefined>{
-        const colaboracion = await database.get<Collab>('SELECT * FROM colaboraciones WHERE idUser = ? AND idTablero = ?', [ids.idUser, ids.idTablero]);
+    async getCollabByIdUser(idUser: string): Promise<Collab[]>{
+        const colaboracion = await database.all<Collab>('SELECT * FROM colaboraciones WHERE idUser = ?', [idUser]);
         if(!colaboracion) throw new Error('No se pudo obtener la colaboracion deseada');
         return colaboracion
     }
 
+    async getCollabByIds(ids: {idUser: string; idTablero:string}): Promise<Collab | undefined>{
+        const colaboracion = await database.get<Collab>('SELECT * FROM colaboraciones WHERE idUser = ? AND idTablero = ?', [ids.idUser, ids.idTablero]);
+        if(!colaboracion) throw new Error('No se pudo obtener la colaboracion deseada');
+        return colaboracion
+    } 
+
     async createCollab(createCollabRequest : CreateCollabRequest): Promise<Collab | undefined>{
-        await database.run('INSERT INTO colaboraciones (idUser, idTablero, permiso) VALUES (?, ?, ?)', 
+        await database.run('INSERT INTO colaboraciones (idUser, idTablero, sololectura) VALUES (?, ?, ?)', 
             [createCollabRequest.idUser, createCollabRequest.idTablero, createCollabRequest.permiso]);
         const colaboracion = await this.getCollabByIds(createCollabRequest);
         return colaboracion;

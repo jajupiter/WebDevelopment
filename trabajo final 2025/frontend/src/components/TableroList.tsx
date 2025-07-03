@@ -1,20 +1,23 @@
 import { useAtom} from 'jotai'
 import añadir from '../assets/añadir.svg'
 import { TableroItem } from './TableroItem'
-import { baseURL, errorAtom, fetchTablerosAtom, loadingAtom, tableroActualAtom, tablerosAtom, tiempoCargando, tokenAtom } from './store/tareasStore'
+import { baseURL, colorsAtom, errorAtom, fetchColaboracionesAtom, fetchTablerosAtom, loadingAtom, tableroActualAtom, tablerosAtom, tiempoCargando, tokenAtom, useFetchCollab } from './store/tareasStore'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import type { Tablero } from '../types'
 import { toast } from 'sonner'
-import { useFetchTableros } from '../hooks'
+import { useFetchCollabs, useFetchTableros } from '../hooks'
 
 export function Tableros() {
     const [, fetchTableros] = useAtom(fetchTablerosAtom);
+    const [, fetchTablerosByCollab] = useAtom(fetchColaboracionesAtom)
     //fetchTableros();
     useFetchTableros();
+    useFetchCollab();
     const [token] = useAtom(tokenAtom);
     const [, setLoading] = useAtom(loadingAtom);
     const [, setError] = useAtom(errorAtom);
     const [tableroActual] = useAtom(tableroActualAtom);
+    const [color] = useAtom(colorsAtom);
     //useFetchTableros()
     const [tablerosList] = useAtom(tablerosAtom);
 
@@ -73,8 +76,8 @@ export function Tableros() {
     }
 
     return (<>
-        <div className="windows flex justify-between items-center px-8 py-4">
-            <div className="window flex justify-around w-full bg-[#f0f8ff] border-b-2 border-[#7fffd4]l mx-4 rounded-sm">
+        <div className="windows flex justify-between  items-center px-8 py-4" style={{background: color.fondo}}>
+            <div className="window flex justify-around w-full bg-[#f0f8ff4b] border-b-2 border-[#7fffd4]l mx-4 rounded-sm">
                 {
                     render()
                 }

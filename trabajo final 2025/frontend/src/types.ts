@@ -20,8 +20,10 @@ export type Configuracion =
 export type Tablero = 
 {
   id: string;
+  idUser: string;
   name: string;
-  tareas: Tarea[];
+  permiso: string;
+  sololectura:string;
 }
 
 export type User = 
@@ -34,6 +36,22 @@ export type User =
   capsLock: boolean;
   darkMode: boolean;
 }
+
+export type Collab = 
+{
+  idUser: string;
+  idTablero: string;
+  permiso: string; 
+}
+
+export type Colors = 
+{
+  crema: string;
+  celeste: string;
+  fondo: string; 
+  
+}
+
 
 export function parseJwt(token: string) {
   try {
@@ -48,4 +66,11 @@ export function parseJwt(token: string) {
     console.error("Token inválido:", error);
     return null;
   }
+}
+
+export function unirSinDuplicados<T extends { id: string }>(arr1: T[], arr2: T[]): T[] {
+  return [...arr1, ...arr2].filter(
+    (item, index, self) =>
+      index === self.findIndex((obj) => obj.id === item.id)
+  );
 }

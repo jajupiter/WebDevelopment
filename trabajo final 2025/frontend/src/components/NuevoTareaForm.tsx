@@ -1,18 +1,20 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { type FormEvent, type MouseEvent } from "react";
-import type { Tarea } from "../types.ts";
+import { parseJwt, type Tarea } from "../types.ts";
 import { useAtom, useAtomValue } from "jotai";
-import { baseURL, editAtom, editContentAtom, errorAtom, loadingAtom, tableroActualAtom, tareaEditable, tiempoCargando, tokenAtom } from "./store/tareasStore.tsx";
+import { baseURL, colorsAtom, editAtom, editContentAtom, errorAtom, loadingAtom, tableroActualAtom, tareaEditable, tiempoCargando, tokenAtom } from "./store/tareasStore.tsx";
 import { toast } from "sonner";
 
 export function NuevaTareaForm() {
     const [token] = useAtom(tokenAtom);
+    const decode = parseJwt(token);
     const [, setLoading] = useAtom(loadingAtom);
     const [, setError] = useAtom(errorAtom);
     const [, setEditContent] = useAtom(editContentAtom);
     const [toggleEdit, setEditAtom] = useAtom(editAtom);
     const [tareaEdit] = useAtom(tareaEditable);
     const [tableroActual] = useAtom(tableroActualAtom);
+    const [color] = useAtom(colorsAtom);
 
     const queryClient = useQueryClient();
 
@@ -84,12 +86,13 @@ export function NuevaTareaForm() {
         const target = e.target as HTMLFormElement;
         const formData = new FormData(target);
         const content = formData.get("content")?.toString();
-        if (!content) { return alert("el formulario esta vacio") }
+        if (!content) { return toast.error('Oopsis', {description: 'El formulario esta vacio'}) }
         if (toggleEdit) {
             setEditContent(content)
             editTarea({ action: "edit", id: tareaEdit?.id!, content: content })
         }
         else {
+            tableroActual?.sololectura && tableroActual!.idUser != decode.id ? toast.error('Oh, no!', {description: 'No tienes los permisos necesarios para esta funcion'}) : 
             addTarea({ content: content, idTablero: tableroActual!.id });
         }
         setEditAtom(false)
@@ -149,11 +152,12 @@ export function NuevaTareaForm() {
 
 
     return (
-        <section className="px-4 py-2">
+        <section className="px-4 py-2" style={{background: color.fondo}}>
             <form
                 action="/api/tasks"
                 method="post"
-                className="flex justify-center items-center bg-[#faebd7] rounded-xl mx-auto w-3/5 p-3 gap-3 mb-5"
+                className={`flex justify-center items-center rounded-xl mx-auto w-3/5 p-3 gap-3 mb-5`}
+                style={{backgroundColor: color.crema}}
                 onSubmit={handleSubmit}
             >
                 {render()}

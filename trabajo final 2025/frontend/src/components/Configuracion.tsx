@@ -1,11 +1,10 @@
 import { useAtom } from "jotai";
-import { baseURL, configContentAtom, errorAtom, loadingAtom, tableroActualAtom, tiempoCargando, tokenAtom } from "./store/tareasStore";
+import { baseURL, colorsAtom, configContentAtom, errorAtom, loadingAtom, tiempoCargando, tokenAtom } from "./store/tareasStore";
 import { type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
-import { type Tarea, parseJwt, type User } from "../types";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { parseJwt, type User } from "../types";
+import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { jwtDecode } from "jwt-decode";
 
 export function Configuracion() {
     const nav = useNavigate();
@@ -14,6 +13,7 @@ export function Configuracion() {
     const [, setLoading] = useAtom(loadingAtom);
     const [, setError] = useAtom(errorAtom);
     const [configContent, setConfigContent] = useAtom(configContentAtom);
+    const [color, setColor] = useAtom(colorsAtom);
     const iRefetch = ` ${(configContent.intervaloRefetch / 1000).toString()} s`
 
     const { mutate: updtConfiguracion } = useMutation({
@@ -26,12 +26,14 @@ export function Configuracion() {
                 headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
             });
             if (response.status == 401) throw new Error('No existe un usuario en sesion')
-            const data: { user: User } = await response.json();
+            const data: {user : User} = await response.json();
             return data.user;
         },
 
         onSuccess: (data) => {
+            console.log(data)
             setConfigContent({ intervaloRefetch: data.intervaloRefetch, capsLck: data.capsLock, darkMode: data.darkMode })
+            console.log(configContent)
             toast.success("Exitazo!", { description: "Configuraciones guardadas (:" })
         },
         onError: (error) => {
@@ -51,20 +53,21 @@ export function Configuracion() {
         const formData = new FormData(target);
         const content = formData.get("content")?.toString();
         const capsLck = formData.get("capsLck")?.toString() == 'on' ? true : false;
-        const refetch = content? parseInt(content) * 1000 : 5;
+        const darkMode = formData.get("darkMode")?.toString() == 'on' ? true : false;
+        const refetch = content? parseInt(content) * 1000 : 10000;
         console.log(refetch)
-        updtConfiguracion({ id: decode.id, intervaloRefetch: refetch, capsLock: capsLck, darkMode: false })
-        target.reset();
+        updtConfiguracion({ id: decode.id, intervaloRefetch: refetch, capsLock: capsLck, darkMode: darkMode })
     }
 
 
 
     function handleBack() {
+        configContent.darkMode ? setColor({ crema: '#baafa0', celeste: '#058888', fondo: '#2f2f2f' }) : setColor({ crema: '#faebd7', celeste: '#b1e4e4', fondo: '#ffffff' });
         nav('/', { replace: true })
     }
 
     return (<>
-        <div className="flex-col flex justify-center  bg-[#b1e4e4] rounded-xl mx-auto w-3/5 p-3 gap-2">
+        <div className="flex-col flex justify-center rounded-xl mx-auto w-3/5 p-3 gap-2" style={{backgroundColor: color.celeste}}>
             <div className="items-center flex ">
                 <h1 className="text-white font-bold">Configuraciones</h1>
             </div>
@@ -88,14 +91,14 @@ export function Configuracion() {
                         <li className="flex justify-around items-center w-full gap-3 p-2" >
                             <p className="flex-grow">{configContent.darkMode ? 'Desactivar modo oscuro' : 'Activar modo oscuro'}</p>
                             <input type="checkbox"
-                                name="capsLck"
+                                name="darkMode"
                                 className="w-20 h-6 rounded flex justify-center items-center text-sm bg-[#f0f8ff] hover:bg-[#b1dbff]"
                             ></input>
                         </li>
                     </ul>
                 </div>
                 <div className="items-center flex justify-center gap-2" >
-                    <button onClick={() => handleBack()} className="w-20 h-6 rounded flex justify-center items-center text-sm bg-[#f0f8ff] hover:bg-[#b1dbff] transition-colors"
+                    <button onClick={(e) => {e.preventDefault(); handleBack()}} className="w-20 h-6 rounded flex justify-center items-center text-sm bg-[#f0f8ff] hover:bg-[#b1dbff] transition-colors"
                     >Volver</button>
                     <button type="submit" className="w-20 h-6 rounded flex justify-center items-center text-sm bg-[#f0f8ff] hover:bg-[#b1dbff] transition-colors"
                     >Guardar</button>

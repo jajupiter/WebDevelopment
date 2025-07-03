@@ -1,6 +1,6 @@
 // hooks/useFetchTableros.ts
 import { useAtom } from 'jotai';
-import { fetchTablerosAtom, fetchTareasAtom } from './components/store/tareasStore';
+import { fetchColaboracionesAtom, fetchTablerosAtom, fetchTareasAtom } from './components/store/tareasStore';
 import { useEffect } from 'react';
 
 export function useFetchTableros() {
@@ -17,4 +17,12 @@ export function useFetchTareas() {
     useEffect(() => {
         setFetchTareas();
     }, [setFetchTareas]);
+}
+
+export function useFetchCollabs() {
+    const [, setFetchTablerosByCollab] = useAtom(fetchColaboracionesAtom);
+
+    useEffect(() => {
+        setFetchTablerosByCollab();
+    }, [setFetchTablerosByCollab]);
 }

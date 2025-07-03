@@ -19,11 +19,12 @@ export class UserController {
     getUserById = async (req: Request, response: Response): Promise<void> => {
         try {
             const request = req.body;
-            const user = this.userService.getUserById(request.id);
+            const user = await this.userService.getUserById(request.id);
             if (!user) { response.status(404).json({ error: "Usuario no encontrado." }); return }
             response.json({ user })
         }
-        catch (error) {
+        catch (err) {
+            console.log(err)
             response.status(500).json({ error: "Obtencion de usuario fallida." })
         }
     }

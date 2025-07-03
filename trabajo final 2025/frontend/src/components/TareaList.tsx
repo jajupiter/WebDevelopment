@@ -1,5 +1,5 @@
 import { useAtom } from "jotai";
-import { baseURL, errorAtom, fetchTareasAtom, filtroAtom, loadingAtom, paginaActualAtom, tableroActualAtom, tareasFiltradasAtom, tareasPorPaginaAtom, tokenAtom, useFetchTarea } from "./store/tareasStore";
+import { baseURL, colorsAtom, errorAtom, filtroAtom, loadingAtom, paginaActualAtom, tableroActualAtom, tareasFiltradasAtom, tareasPorPaginaAtom, tokenAtom, useFetchTarea } from "./store/tareasStore";
 import { TareaItem } from "./TareaItem"
 import type { Tarea } from "../types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -8,7 +8,6 @@ import errorcito from '../assets/errorcito.png'
 import notareas from '../assets/notareas.png'
 import { toast } from "sonner";
 import { useEffect, type FormEvent } from "react";
-import { useFetchTareas } from "../hooks";
 
 
 export function TareaList() {
@@ -33,40 +32,13 @@ export function TareaList() {
     const [token] = useAtom(tokenAtom);
     const [loading, setLoading] = useAtom(loadingAtom);
     const [error, setError] = useAtom(errorAtom);
+    const [color] = useAtom(colorsAtom);
+
 
     useEffect(() => {
         setPaginaActual(1)
     }, [tableroActual])
 
-    const { mutate: handleDltCompleted } = useMutation({
-        mutationFn: async () => {
-            setLoading(true);
-            setError(null);
-            const response = await fetch(`${baseURL}/tableros/tasks`, {
-                method: 'POST',
-                body: JSON.stringify({ action: 'borrar-completas' }),
-                headers: { 'Content-Type': 'application/json' },
-            });
-            const data: { tasks: Tarea[] } = await response.json();
-            return data.tasks;
-        },
-
-        onSuccess: (data) => {
-            queryClient.setQueryData(['listaTareas'], (current: Tarea[]) => {
-                const tareasTableroActual = current.filter((t) => t.idTablero == tableroActual!.id);
-                const tareasTableroFetcheadas = data.filter((t) => t.idTablero == tableroActual!.id);
-                return tareasTableroFetcheadas;
-            })
-            toast.success("Exitazo!", { description: "Ahora haz las que te faltan! (:" })
-        },
-        onError: (error) => {
-            setError(error.message);
-            alert('Se rompió: ' + error.message);
-        },
-        onSettled: () => {
-            setLoading(false);
-        },
-    });
 
     const { mutate: handleDltComplete } = useMutation({
         mutationFn: async () => {
@@ -75,7 +47,7 @@ export function TareaList() {
             const response = await fetch(`${baseURL}/tableros/tasks`, {
                 method: 'DELETE',
                 body: JSON.stringify({ idTablero: `${tableroActual?.id}` }),
-                headers: { 'Content-Type': 'application/json', Authorization:  `Bearer ${token}`},
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
             });
             const data: { eliminadas: Tarea[] } = await response.json();
             console.log(data)
@@ -83,7 +55,7 @@ export function TareaList() {
         },
 
         onSuccess: () => {
-            queryClient.invalidateQueries({queryKey:['listaTareas']})
+            queryClient.invalidateQueries({ queryKey: ['listaTareas'] })
             toast.success("Exitazo!", { description: "Ahora haz las que te faltan! (:" })
         },
         onError: (error) => {
@@ -117,7 +89,7 @@ export function TareaList() {
         const target = e.target as HTMLFormElement;
         const formData = new FormData(target);
         const content = parseInt(formData.get("content")!.toString());
-        if (!content) { return alert("el formulario esta vacio") }
+        if (!content) { return toast.error('Oopsis!', { description: 'El formulario esta vacio' }) }
         if (content > paginasPosibles) {
             toast.error("oopsis", { description: "aun nos faltan tareas para llegar a esa pagina" })
         } else {
@@ -126,8 +98,7 @@ export function TareaList() {
         target.reset()
     }
 
-    function errorACK()
-    {
+    function errorACK() {
         setError(null);
     }
 
@@ -157,7 +128,7 @@ export function TareaList() {
                     <img src={errorcito} className="h-20" />
                     <p className="text-white">Error: {error}
                         <button className=" text-white flex justify-center hover:bg-white hover:text-[#e4b1b1] px-3 py-1 rounded text-sm"
-                        onClick={() => errorACK()}
+                            onClick={() => errorACK()}
                         >okis</button>
                     </p>
 
@@ -175,7 +146,7 @@ export function TareaList() {
         }
 
         return (
-            <section className="bg-[#faebd7] rounded-xl mx-auto w-3/5 p-3">
+            <section className={` rounded-xl mx-auto w-3/5 p-3`} style={{ backgroundColor: color.crema }}>
                 <ul id="task-list" >
                     {
                         tareasListPorPagina.map((tarea) => (
@@ -191,10 +162,11 @@ export function TareaList() {
 
 
     return (
-        <section>
+        <section style={{background: color.fondo}}>
+
             {render()}
-            <section className="h-5" />
-            <section className="flex justify-center bg-[#b1e4e4] rounded-xl mx-auto w-1/5 p-1 gap-1">
+            <section className="h-5" style={{background: color.fondo}}/>
+            <section className="flex justify-center  rounded-xl mx-auto w-1/5 p-1 gap-1" style={{background: color.celeste}}>
                 <button
                     className="bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded text-sm"
                     onClick={() => handleClickLeft()}
@@ -206,10 +178,11 @@ export function TareaList() {
                     onClick={() => handleClickRight()}
                 >{">"}</button>
             </section>
-            <section className="h-5" />
+            <section className="h-5" style={{background: color.fondo}} />
 
             <section
-                className="flex justify-center bg-[#faebd7] rounded-xl mx-auto w-3/5 p-3 gap-2"
+                className={`flex justify-center rounded-xl mx-auto w-3/5 p-3 gap-2`}
+                style={{ backgroundColor: color.crema }}
             >
                 <button
                     type="submit"
@@ -251,8 +224,9 @@ export function TareaList() {
                 >Todas
                 </button>
             </section>
-        </section>
+            <section className="h-60" style={{background: color.fondo}} />
 
+        </section>
 
     )
 }

@@ -1,6 +1,7 @@
 import e, { Request, Response } from "express";
 import { ColaboracionService } from "./colaboracion.service";
-import { error } from "console";
+import { error, table } from "console";
+import { UserService } from "../user/user.service";
 
 export class ColaboracionController {
     constructor(private readonly colaboracionService: ColaboracionService) { }
@@ -16,11 +17,25 @@ export class ColaboracionController {
         }
     }
 
-    getCollabByIds = async (req: Request, res: Response) =>
+    getTablerosByIdUser = async (req: Request, res: Response) =>
+    {
+        try{
+            const request = req.user;
+            const tableros = await this.colaboracionService.getTablerosByCollabs(request.id);
+            if(!tableros) throw new Error('Colaboracion no encontrada.');
+            console.log(tableros)
+            res.json({tableros})
+        } catch(err) {
+            console.log(err);
+            res.status(500).json({error: 'No se pudo traer los tableros en base a la collab especificada.'})
+        }
+    }
+
+    getCollabsByIds = async (req: Request, res: Response) =>
     {
         try{
             const request = req.body;
-            const colaboracion = this.colaboracionService.getCollabByIds(request.ids);
+            const colaboracion = await this.colaboracionService.getCollabsByIds(request);
             if(!colaboracion) throw new Error('Colaboracion no encontrada.');
             res.json({colaboracion})
         } catch(err) {
@@ -33,7 +48,7 @@ export class ColaboracionController {
     {
         try{
             const request = req.body;
-            const colaboracion = this.colaboracionService.createCollab(request.ids);
+            const colaboracion = await this.colaboracionService.createCollab(request.update);
             if(!colaboracion) throw new Error('Request dudosa.');
             res.json({colaboracion})
         } catch(err) {

@@ -11,6 +11,7 @@ class Database {
     constructor() {
         const dbPath = path.join(__dirname, "../../database.sqlite");
         this.db = new sqlite3.Database(dbPath);
+        this.db.run("PRAGMA foreign_keys = ON");
         this.init();
     }
 
@@ -32,6 +33,7 @@ class Database {
             id TEXT PRIMARY KEY,
             idUser TEXT NOT NULL,
             name TEXT NOT NULL,
+            sololectura INTEGER,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (idUser) REFERENCES users (id) on DELETE CASCADE
@@ -53,10 +55,10 @@ class Database {
             CREATE TABLE IF NOT EXISTS colaboraciones (
             idUser TEXT NOT NULL,
             idTablero TEXT NOT NULL,
-            permiso TEXT NOT NULL,
+            sololectura INTEGER NOT NULL,
             PRIMARY KEY (idUser, idTablero),
             FOREIGN KEY (idUser) REFERENCES users (id),
-            FOREIGN KEY (idTablero) REFERENCES tableros (id)
+            FOREIGN KEY (idTablero) REFERENCES tableros (id) ON DELETE CASCADE
             )
             `);      
 
@@ -64,7 +66,7 @@ class Database {
             await this.run(`INSERT INTO users (id, email, password, username, intervaloRefetch, capsLock, darkMode) VALUES ('2', 'doscuartos@gmail.com', 'hevuelto', 'doscuartos',  5, 0, 0)`);
             await this.run(`INSERT INTO tableros (id, name, idUser) VALUES ('1', 'Personal', '1')`);
             await this.run(`INSERT INTO tareas (id, content, checked, idTablero) VALUES ('1', 'proyecto de progra', 0, '1')`);
-            await this.run(`INSERT INTO colaboraciones (idUser, idTablero, permiso) VALUES ('2', '1', 'lectura')`);
+            await this.run(`INSERT INTO colaboraciones (idUser, idTablero, sololectura) VALUES ('2', '1', 1)`);
 
         }
     }

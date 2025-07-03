@@ -26,7 +26,7 @@ export function Logout() {
   
   return (    
     <>
-      <header className="bg-[#b1e4e4]">
+      <header className="bg-[#b1e4e4]" >
         <div id="title" className="h-24 flex justify-center items-center">
           <h1 className="flex justify-center items-center text-2xl font-bold w-9/10">
             tasking.com
