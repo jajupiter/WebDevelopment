@@ -8,16 +8,12 @@ const page = async () => {
     const books : bookss= await data.json();
     const array = books.items
 
-    console.log(books);
-    console.log(array[0].volumeInfo);
+    //console.log(books);
+    console.log(array[0]);
 
-    const handleSubmit = () =>
-    {
-
-    }
     return(<>
         <div className="">
-            <div className="flex justify-center">
+            <div className="flex justify-center text-4xl font-extrabold p-5">
                 <h1>Libros</h1>
             </div>
             <div>
