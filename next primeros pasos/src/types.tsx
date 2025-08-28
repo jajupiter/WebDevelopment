@@ -9,7 +9,14 @@ export type volumeInfo =
     categories: string[],
     title: string,
     pageCount: number, 
-    imageLinks: {smallThumbnail: string, thumbnail: string}, 
+    imageLinks: {
+        smallThumbnail: string, 
+        thumbnail: string,
+        small: string, 
+        medium: string, 
+        large: string, 
+        extraLarge: string
+    }, 
     description: string,
     publishedDate: string,
     publisher: string,

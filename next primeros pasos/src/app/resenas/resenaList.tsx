@@ -1,15 +1,14 @@
-import { resena, resenasStore } from "@/resenaStore"
+import { resena, resenasDB, resenasStore } from "@/resenaStore"
 import ResenaItem from "./resenaItem"
 
 export default function ResenaList() {
-    const resenasState = resenasStore()
-    const resenas = resenasState.resenas.toSorted((resA, resB) =>  (resB.likes-resB.dislikes) - (resA.likes-resA.dislikes));
+    const resenasdb = resenasDB.toSorted((resA, resB) =>  (resB.likes-resB.dislikes) - (resA.likes-resA.dislikes));
 
 
     return (
-            <div>
+            <div className="flex-wrap flex justify-center">
                 {
-                    resenas.map((res) =>
+                    resenasdb.map((res) =>
                         <ResenaItem resena={res} key={res.id}></ResenaItem>
                     )
                 }

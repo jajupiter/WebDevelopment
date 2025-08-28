@@ -1,14 +1,12 @@
 import { Card } from "@/components/ui/card";
-import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger } from "@/components/ui/navigation-menu";
-import Image from "next/image";
-import Link from "next/link";
 import { Toaster } from "sonner";
 
 export default function Home() {
   return (
     <>
+    <div className="bg-[#406db0] h-screen">
         <Toaster/>
-        <div className="w-full flex justify-center text-5xl p-5 font-extrabold">
+        <div className="w-full flex justify-center text-5xl p-5 font-extrabold text-white">
               <p>Libreate Varon</p>
         </div>
         <section className="h-20"></section>
@@ -20,6 +18,7 @@ export default function Home() {
               <a href="/resenas">Explorar reseñas</a>
             </Card>
         </div>
+    </div>
     </>
   );
 }

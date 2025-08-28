@@ -1,113 +1,104 @@
-'use client'
 import { Card } from "@/components/ui/card";
 import { resena, resenasStore } from "@/resenaStore";
 import like from "../../../public/8666702_thumbs_up_icon.png"
 import dislike from "../../../public/8666748_thumbs_down_icon.png"
 import Image from "next/image";
-import estrella  from "../../../public/8666698_star_icon.png"
+import estrella from "../../../public/8666698_star_icon.png"
 import { useEffect, useState } from "react";
 import { libro, volumeInfo } from "@/types";
+import { getLibroById, likeAction } from "../libros/serverActions";
+import { revalidatePath } from "next/cache";
 
 
 type ResenaItemProps = {
     resena: resena
 }
 
-export default function ResenaItem({ resena }: ResenaItemProps) {
-    const [libro, setLibro] = useState<volumeInfo | null>(null);
-    const resenaStore = resenasStore()
-    const increaseLikes = resenaStore.likesCounter
-    const increaseDislikes = resenaStore.likesCounter
-
-    useEffect(() => {
-    const getLibro = async (id: string) => {
-      try {
-        const response = await fetch(
-          `https://www.googleapis.com/books/v1/volumes/${id}`
-        );
-        const data = await response.json();
-        setLibro(data.volumeInfo);
-      } catch (err) {
-        console.error("Error cargando libro", err);
-      }
-    };
-
-    getLibro(resena.libroId);
-  }, [resena.libroId]);
+export default async function ResenaItem({ resena }: ResenaItemProps) {
+    const libro = await getLibroById(resena.libroId);
     const images = libro?.imageLinks
 
-    const estrellas = () =>
-    {
-        switch(resena.calificacion){
-            case 1: 
-                return(<>
-                    <Image src={estrella} alt="" height={10}></Image>
+    async function likeResena(formData: FormData) {
+        "use server";
+        const resenaId = formData.get("id")?.toString()!;
+        const action = formData.get("accion")?.toString()!
+        likeAction(resenaId, action);
+        revalidatePath('/resenas')
+    }
+
+    const estrellas = () => {
+        switch (resena.calificacion) {
+            case 1:
+                return (<>
+                    <Image src={estrella} alt="" height={10} width={10}></Image>
                 </>)
             case 2:
-                return(<>
-                    <Image src={estrella} alt="" height={10}></Image>
-                    <Image src={estrella} alt="" height={10}></Image>
+                return (<>
+                    <Image src={estrella} alt="" height={10} width={10}></Image>
+                    <Image src={estrella} alt="" height={10} width={10}></Image>
                 </>)
             case 3:
-                return(<>
-                    <Image src={estrella} alt="" height={10}></Image>
-                    <Image src={estrella} alt="" height={10}></Image>
-                    <Image src={estrella} alt="" height={10}></Image>
+                return (<>
+                    <Image src={estrella} alt="" height={10} width={10}></Image>
+                    <Image src={estrella} alt="" height={10} width={10}></Image>
+                    <Image src={estrella} alt="" height={10} width={10}></Image>
                 </>)
             case 4:
-                return(<>
-                    <Image src={estrella} alt="" height={10}></Image>
-                    <Image src={estrella} alt="" height={10}></Image>
-                    <Image src={estrella} alt="" height={10}></Image>
-                    <Image src={estrella} alt="" height={10}></Image>
+                return (<>
+                    <Image src={estrella} alt="" height={10} width={10}></Image>
+                    <Image src={estrella} alt="" height={10} width={10}></Image>
+                    <Image src={estrella} alt="" height={10} width={10}></Image>
+                    <Image src={estrella} alt="" height={10} width={10}></Image>
                 </>)
             case 5:
-                return(<>
-                    <Image src={estrella} alt="" height={10}></Image>
-                    <Image src={estrella} alt="" height={10}></Image>
-                    <Image src={estrella} alt="" height={10}></Image>
-                    <Image src={estrella} alt="" height={10}></Image>
-                    <Image src={estrella} alt="" height={10}></Image>
+                return (<>
+                    <Image src={estrella} alt="" height={10} width={10}></Image>
+                    <Image src={estrella} alt="" height={10} width={10}></Image>
+                    <Image src={estrella} alt="" height={10} width={10}></Image>
+                    <Image src={estrella} alt="" height={10} width={10}></Image>
+                    <Image src={estrella} alt="" height={10} width={10}></Image>
                 </>)
         }
-        
+
     }
-    
+
 
 
     return (
-        <div className="flex justify-center">
-            <div className="flex justify-center w-1/3 bg-amber-100">
-                <Card key={resena.id} className="w-90 p-4" >
-                    <div className=" gap-2 flex justify-center items-center">
-                        <div className="border-r-amber-200">
-                            <div>
-
-                            </div>
-                            <h2 className="font-bold">{resena.title}</h2>
-                            <div className="flex p-1">
-                                {estrellas()}
-                            </div>
-                            <p>{resena.opinion}</p>
-                            <div className="flex justify-around py-4">
-                                <button className="flex items-center gap-2 hover:bg-gray-200 rounded-md" onClick={() =>increaseLikes(resena.id, 'like')}>
-                                    <Image src={like} alt="" height={15}></Image>
+        <div className="flex w-max">
+            <Card key={resena.id} className="w-full p-4 " >
+                <div className=" gap-2 flex justify-center items-center">
+                    <div className="border-r-amber-200">
+                        <h2 className="font-bold" data-testid="title" >{resena.title}</h2>
+                        <div className="flex p-1" data-testid="estrellas">
+                            {estrellas()}
+                        </div>
+                        <p data-testid = "opinion">{resena.opinion}</p>
+                        <div className="flex justify-around py-4">
+                            <form data-testid = "formLikes" action={likeResena}>
+                                <input type="hidden" name="id" value={resena.id} />
+                                <input type="hidden" name="accion" value="like" />
+                                <button data-testid = "likes" className="flex items-center gap-2 hover:bg-gray-200 rounded-md" type="submit">
+                                    <Image src={like} alt="" height={15} width={15}></Image>
                                     {resena.likes}
                                 </button>
-                                <button className="flex items-center gap-2 hover:bg-gray-200 rounded-md" onClick={() =>increaseDislikes(resena.id, 'dislike')}>
-                                    <Image src={dislike} alt="" height={15}></Image>
+                            </form>
+                            <form action={likeResena} data-testid = "formDislikes">
+                                <input type="hidden" name="id" value={resena.id} />
+                                <input type="hidden" name="accion" value="dislike" />
+                                <button data-testid = "dislikes" className="flex items-center gap-2 hover:bg-gray-200 rounded-md" >
+                                    <Image src={dislike} alt="" height={15} width={15}></Image>
                                     {resena.dislikes}
                                 </button>
-                            </div>
-                        </div>
-                        <div>
-                            <img src={images?.thumbnail} alt="" />
-                            <p className="text-xs">{libro?.title}</p>
+                            </form>
                         </div>
                     </div>
-
-                </Card>
-            </div>
+                    <div className=" flex-wrap flex justify-center w-50">
+                        <img src={images?.thumbnail} alt="" className="w-25 h-40" />
+                        <p data-testid = "libroTitle" className="text-xs">{libro?.title}</p>
+                    </div>
+                </div>
+            </Card>
         </div >
     )
 }

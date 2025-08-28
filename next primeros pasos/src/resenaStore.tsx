@@ -88,3 +88,49 @@ export const resenasStore = create<resenaItemState>((set, get) =>
         return  libro
     }
 }))
+
+
+export const resenasDB = [
+    {   
+        id: '1', 
+        calificacion: 3, 
+        dislikes: 4, 
+        likes: 20, 
+        libroId: '4RENAQAAMAAJ', 
+        title: 'estabuenishimo', 
+        opinion: 'joya total mi loco 100% recomendau por el 99% de los odontologos'
+    },
+
+        {   
+        id: '2', 
+        calificacion: 5, 
+        dislikes: 2, 
+        likes: 40, 
+        libroId: '2WhCEAAAQBAJ', 
+        title: 'tusae grande Riordan', 
+        opinion: 'todos los 5 libros just for starters que buena vaina mi cleptomaniaco'
+    },
+    {   
+        id: '3', 
+        calificacion: 3, 
+        dislikes: 4, 
+        likes: 20, 
+        libroId: '4RENAQAAMAAJ', 
+        title: 'estabuenishimo', 
+        opinion: 'joya total mi loco 100% recomendau por el 99% de los odontologos'
+    },
+
+        {   
+        id: '4', 
+        calificacion: 5, 
+        dislikes: 2, 
+        likes: 40, 
+        libroId: '2WhCEAAAQBAJ', 
+        title: 'tusae grande Riordan', 
+        opinion: 'todos los 5 libros just for starters que buena vaina mi cleptomaniaco'
+    }
+]
+
+export const librosDB = [
+    {}
+]
