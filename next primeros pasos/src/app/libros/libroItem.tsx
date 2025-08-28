@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import newResena from "../../../public/8666681_edit_icon.svg"
 import Image from "next/image";
 import Link from "next/link";
+import { redirect } from "next/dist/server/api-utils";
 
 export default function LibroItem() {
     const useResenaStore = resenasStore();
@@ -48,20 +49,22 @@ export default function LibroItem() {
             <form onSubmit={handleSubmit}>
                 <input name="busqueda" className="bg-red-100 rounded-md" type="text" placeholder="  Buscar libro por..." />
                 <select name="modoBusqueda" id="modoBusqueda" value={modoBusqueda} onChange={(e) => setModoBusqueda(e.target.value)}>
-                    <option value="titulo">Titulo</option>
-                    <option value="IBSN">IBSN</option>
-                    <option value="autor">Autor</option>
+                    <option data-testid = 'titulo' value="titulo">Titulo</option>
+                    <option data-testid = 'ISBN' value="IBSN">IBSN</option>
+                    <option data-testid = 'author' value="autor">Autor</option>
                 </select>
             </form>
         </div>
         <div className="flex-wrap flex justify-center bg-red-100 rounded-xl p-3 gap-3">
             {libros ? libros.map((b) =>
                 <Card key={b.id} className="w-55" >
-                    <img key={b.id} src={b.volumeInfo.imageLinks.smallThumbnail} alt="" />
+                    <Link href={`/libros/${b.id}`} >
+                        <img key={b.id} src={b.volumeInfo.imageLinks.smallThumbnail} alt="" />
+                    </Link>
                     <div className="flex items-center p-3 gap-2">
                         <div className="w-3/4">
-                            <p >{b.volumeInfo.title}</p>
-                            <p>{b.volumeInfo.publishedDate?.slice(0, 4)}</p>
+                            <p data-testid = 'title' >{b.volumeInfo.title}</p>
+                            <p data-testid = 'published'>{b.volumeInfo.publishedDate?.slice(0, 4)}</p>
                         </div>
                         <Link href="/resenas/crear" onClick={() => setIdLibro(b.id)}>
                             <Image src={newResena} alt="" height={20}></Image>
