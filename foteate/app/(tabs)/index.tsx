@@ -67,6 +67,7 @@ const styles = StyleSheet.create({
   },
 });*/
 
+import { navigate } from "expo-router/build/global-state/routing";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
@@ -78,7 +79,7 @@ export default function HomeScreen() {
         Captura momentos automáticamente cuando llegues a tus lugares favoritos.
       </Text>
 
-      <TouchableOpacity style={styles.button}>
+      <TouchableOpacity style={styles.button} onPress={() => navigate('/pages/cameraPerm')}>
         <Text style={styles.buttonText}>Comenzar</Text>
       </TouchableOpacity>
     </View>
