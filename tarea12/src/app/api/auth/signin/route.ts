@@ -1,23 +1,32 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
+import { NextRequest, NextResponse } from 'next/server';
 import { SiweMessage } from 'siwe';
+import jws from 'jsonwebtoken'
 
-export default async function POST(req: NextApiRequest, res: NextApiResponse) {
-  try {
-    const { message, signature } = req.body;
+export async function POST(req: NextRequest) {
+  const body = await req.json() 
+  console.log(body)
+  const signature = body.signature
+  const siweMessage = new SiweMessage(body.message);
+  const fields = await siweMessage.verify({ signature });
+  const nonceSaved =  req.cookies.get('nonce')?.value
 
-    if (!message || !signature) {
-      return res.status(400).json({ ok: false, error: 'Missing parameters' });
-    }
+  console.log(fields.data.nonce , nonceSaved)
+  if(fields.data.nonce !== nonceSaved) return NextResponse.json({message: 'Nonce Invalido'});
 
-    const siweMessage = new SiweMessage(message);
-    const result = await siweMessage.verify({ signature });
+  const secretKey = process.env.JWT_SECRET || 'mi-clavesisima-secure';
 
-    if (result.success) {
-      return res.status(200).json({ ok: true });
-    } else {
-      return res.status(401).json({ ok: false });
-    }
-  } catch (error) {
-    return res.status(500).json({ ok: false, error: 'Verification failed' });
+  const payload = {
+    address: fields.data.address,
+    issuedAt: fields.data.issuedAt,
+    nonce: fields.data.nonce,
   }
+
+  const token = jws.sign(payload, secretKey, {expiresIn: "1h"});
+  const address = fields.data.address
+  
+  console.log(address)
+
+  return NextResponse.json({ok: true, token: token, address: address})
+
+
 }
