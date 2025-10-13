@@ -5,6 +5,7 @@ import { type ReactNode, useState } from 'react'
 import { type State, WagmiProvider } from 'wagmi'
 
 import { getConfig } from '@/wagmi'
+import { Toaster } from 'sonner'
 
 export function Providers(props: {
   children: ReactNode
@@ -13,8 +14,11 @@ export function Providers(props: {
   const [config] = useState(() => getConfig())
   const [queryClient] = useState(() => new QueryClient())
 
+
+
   return (
     <WagmiProvider config={config} initialState={props.initialState}>
+      <Toaster/>
       <QueryClientProvider client={queryClient}>
         {props.children}
       </QueryClientProvider>
