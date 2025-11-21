@@ -6,12 +6,13 @@ import { libroInfoBasica, Message, MessageItemProps } from "./types"
 import { chatAtom } from "./store"
 import Image from 'next/image'
 import { useChat } from '@ai-sdk/react'
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { toast } from "sonner"
 import { Spinner } from "@/components/ui/spinner"
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import LibrosListComponent from "@/components/ui/LibroListComponent"
+import { LoaderIcon } from "lucide-react"
 
 export default function ChatComponent() {
     const chat = useAtomValue(chatAtom)
@@ -54,7 +55,7 @@ export function MessageItem({ message }: MessageItemProps) {
 }
 
 export function ChatHook() {
-    const { messages, status, sendMessage } = useChat()
+    const { messages, status, sendMessage, } = useChat()
     const [input, setInput] = useState('');
     const handleSubmit = (e: any) => {
         e.preventDefault();
@@ -65,14 +66,13 @@ export function ChatHook() {
     console.log(messages)
     console.log(status)
 
-
     return (
         <div className="w-3/4">
             {messages.map(message => (
                 <div key={message.id} className="flex justify-center">
                     {
                         message.role === 'user' ?
-                            <div className="p-2 flex justify-end w-full">
+                            <div key={message.id} className="p-2 flex justify-end w-full">
                                 <div className="rounded-md bg-[#466946] p-1.5 text-white">
                                     {message.parts.map((part, index) => {
                                         switch (part.type) {
@@ -83,13 +83,13 @@ export function ChatHook() {
                                 </div>
                             </div>
                             :
-                            <div className="p-2 flex justify-baseline w-full">
+                            <div  key={message.id} className="p-2 flex justify-baseline w-full">
                                 <div className="rounded-md bg-[#3f483f] p-2 text-white max-w-2/3">
                                     {message.parts.map((part, index) => {
                                         switch (part.type) {
                                             case 'text':
                                                 return <>
-                                                    <div className="prose prose-invert max-w-none">
+                                                    <div key={index} className="prose prose-invert max-w-none">
                                                         <ReactMarkdown remarkPlugins={[remarkGfm]}>
                                                             {`${part.text}`}
                                                         </ReactMarkdown>
@@ -97,7 +97,7 @@ export function ChatHook() {
                                                 </>
 
                                             case 'reasoning':
-                                                if (message.parts.length == 2 ) return <span key={index}> <Spinner></Spinner>  </span>
+                                                if (message.parts.length == 2) return <span key={index}> <Spinner></Spinner>  </span>
                                                 break
 
                                             case 'step-start':
@@ -105,19 +105,6 @@ export function ChatHook() {
                                                 break
 
                                             case 'tool-searchBooks':
-                                                /*return (<div className="prose prose-invert max-w-none">
-                                                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                                                            {`${part.output}`}
-                                                        </ReactMarkdown>
-                                                    </div>)*/
-                                                /*if (part.output == undefined) {
-                                                    return <>
-                                                        <div key={part.toolCallId} className="flex items-center gap-2">
-                                                            <Spinner />
-                                                            <span>Buscando libros...</span>
-                                                        </div>
-                                                    </>
-                                                }*/
                                                 if (!part.output && part.errorText) {
                                                     return (
                                                         <span key={part.toolCallId} className="text-red-500">
@@ -126,7 +113,7 @@ export function ChatHook() {
                                                     );
                                                 }
 
-                                                else if (part.output  && typeof part.output === 'object' && 'books' in part.output &&  Array.isArray(part.output.books) ) {
+                                                else if (part.output && typeof part.output === 'object' && 'books' in part.output && Array.isArray(part.output.books)) {
                                                     return <>
                                                         <span key={part.toolCallId} className="prose prose-invert max-w-none">
                                                             <LibrosListComponent libros={part.output.books as libroInfoBasica[]}></LibrosListComponent>
@@ -134,20 +121,12 @@ export function ChatHook() {
                                                     </>
                                                 }
                                                 else {
-                                                    // Fallback: render unknown/non-array object output as JSON for debugging
-                                                    const data = JSON.stringify(part.output);
-
-
                                                     return <>
-
                                                         <span key={part.toolCallId} className="prose prose-invert max-w-none">
-                                                            <LibrosListComponent libros={part.output as libroInfoBasica[]}></LibrosListComponent>
+                                                            <LoaderIcon />
                                                         </span>
                                                     </>
                                                 }
-
-
-                                                break
                                         }
                                     })}
                                 </div>

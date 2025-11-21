@@ -1,5 +1,6 @@
 import { libroInfoBasica } from "@/app/types"
 import Image from "next/image"
+import libroImg from "../../../public/libroImagen.jpg"
 
 export default function LibrosListComponent({libros} : {libros: libroInfoBasica[]}) {
     return(
@@ -13,13 +14,17 @@ export default function LibrosListComponent({libros} : {libros: libroInfoBasica[
 }
 
 export function LibrosItem({libro} : {libro: libroInfoBasica}) {
-    const autores = libro.autor.length > 1 ? libro.autor.reduce((acc : string, libro: string) =>
+    const autores = libro.autor && libro.autor.length > 1 ? libro.autor.reduce((acc : string, libro: string) =>
     {
         return acc + ', ' + libro
     }) : libro.autor
     return (
     <div className="flex p-1 bg-gray-600 rounded-md " >
-        <Image key={libro.ID} src={libro.thumbnail} alt="" width={25} height={40}/>
+        {libro.thumbnail ?
+            <Image key={libro.ID} src={libro.thumbnail} alt="" width={35} height={35}/>
+        :
+            <Image key={libro.ID} src={libroImg} alt="" width={35} height={35}/>
+        }
         <div className=" items-center p-3 gap-2">
             <h3 className="text-md font-bold">{libro.titulo}</h3>
             <p className="text-sm">{libro.autor.length == 1 ? `Autor: ${libro.autor}` : `Autores: ${autores}`}</p>
